@@ -1,0 +1,25 @@
+{
+  "name": "client-cli",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "packageManager": "pnpm@10.15.0",
+  "dependencies": {
+    "@google/genai": "^1.16.0",
+    "@langchain/anthropic": "^0.3.26",
+    "@langchain/core": "0.3.71",
+    "@langchain/google-genai": "^0.2.16",
+    "dotenv": "^17.2.1",
+    "mcp-use": "^0.1.17",
+    "mcp-use-ts": "1.0.2-ts.0"
+  },
+  "devDependencies": {
+    "@types/node": "^24.3.0"
+  }
+}

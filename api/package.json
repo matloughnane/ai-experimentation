@@ -1,0 +1,32 @@
+{
+  "name": "express-api-with-mcp",
+  "version": "1.0.0",
+  "description": "Express API with MCP integration - TypeScript + PostgreSQL + DrizzleORM",
+  "main": "dist/server.js",
+  "scripts": {
+    "build": "tsc",
+    "start": "node dist/server.js",
+    "dev": "tsx watch server.ts",
+    "type-check": "tsc --noEmit"
+  },
+  "dependencies": {
+    "@modelcontextprotocol/sdk": "^1.17.4",
+    "dotenv": "^17.2.1",
+    "express": "^5.1.0"
+  },
+  "devDependencies": {
+    "@types/express": "^5.0.3",
+    "@types/node": "^24.3.0",
+    "nodemon": "^3.1.10",
+    "tsx": "^4.20.5",
+    "typescript": "^5.9.2"
+  },
+  "keywords": [
+    "express",
+    "api",
+    "mcp",
+    "typescript"
+  ],
+  "author": "",
+  "license": "ISC"
+}
