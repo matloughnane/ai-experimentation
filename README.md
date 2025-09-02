@@ -116,3 +116,42 @@ Response:
 
 > exit
 ```
+
+# Web Client with MCP Server - `./client-web`
+
+A Next.js chat client for AI with MCP (Model Context Protocol) integration. Provides a modern web interface for AI experimentation with streaming responses and tool execution.
+
+- AI chat interface with streaming responses
+- MCP server integration for tool calling
+- Support for Google AI and Anthropic models
+- Real-time message streaming
+- Tool execution and result display
+
+## Setting Up the Web Client
+
+Create a `.env.local` file in the `client-web/` directory:
+
+```bash
+NEXT_PUBLIC_GOOGLE_AI_API=your_google_ai_api_key
+NEXT_PUBLIC_ANTHROPIC_API=your_anthropic_api_key
+```
+
+Install dependencies:
+
+```bash
+cd client-web
+pnpm install
+```
+
+## Running the Web Client
+
+1. Start the MCP server (see `./api` section above)
+
+2. Run the web client:
+   ```bash
+   pnpm dev
+   ```
+
+3. Open [http://localhost:3000](http://localhost:3000) in your browser
+
+4. Start chatting! The interface will connect to your MCP server and allow you to use available tools through the AI models.
