@@ -82,8 +82,6 @@ export default function AIChat() {
                 {message.parts.map((part, index) => {
                   switch (part.type) {
                     // render text parts as simple text:
-                    case "text":
-                      return <span key={index}>{part.text}</span>;
                     case "step-start":
                       // show step boundaries as horizontal lines:
                       return index > 0 ? (
@@ -208,6 +206,79 @@ export default function AIChat() {
                     //   break;
                     // }
 
+                    case "tool-getArranmoreFerryTimes": {
+                      const callId = part.toolCallId;
+
+                      switch (part.state) {
+                        case "input-streaming":
+                          return <div key={callId}>Getting ferry times...</div>;
+                        case "input-available":
+                          return (
+                            <div key={callId}>Fetching ferry schedules...</div>
+                          );
+                        case "output-available":
+                          const ferryData = part.output as Array<{
+                            type: string;
+                            text: string;
+                          }>;
+                          return (
+                            <div key={callId} className="space-y-4">
+                              {ferryData.map((item, idx) => {
+                                // Extract times from the text - they appear as numbers like "830, 1030"
+                                const timeMatches =
+                                  item.text.match(/\d{3,4}/g) || [];
+                                const times = timeMatches.map((timeStr) => {
+                                  // Convert numbers like "830" to "8:30", "1030" to "10:30"
+                                  const num = parseInt(timeStr);
+                                  const hours = Math.floor(num / 100);
+                                  const minutes = num % 100;
+                                  return `${hours}:${minutes
+                                    .toString()
+                                    .padStart(2, "0")}`;
+                                });
+                                const isFromArranmore = item.text.includes(
+                                  "Departing Arranmore"
+                                );
+
+                                return (
+                                  <div key={idx} className="space-y-2">
+                                    <h4 className="font-semibold text-sm">
+                                      {isFromArranmore
+                                        ? "From Arranmore Island:"
+                                        : "From Burtonport:"}
+                                    </h4>
+                                    <div className="flex flex-wrap gap-2">
+                                      {times.map((time, timeIdx) => (
+                                        <Button
+                                          key={timeIdx}
+                                          variant="outline"
+                                          size="sm"
+                                          className="text-xs"
+                                          onClick={() => {
+                                            window.location.href = `/ferry?time=${encodeURIComponent(
+                                              time
+                                            )}`;
+                                          }}
+                                        >
+                                          {time}
+                                        </Button>
+                                      ))}
+                                    </div>
+                                  </div>
+                                );
+                              })}
+                            </div>
+                          );
+                        case "output-error":
+                          return (
+                            <div key={callId}>
+                              Error getting ferry times: {part.errorText}
+                            </div>
+                          );
+                      }
+                      break;
+                    }
+
                     // Dynamic tools use generic `dynamic-tool` type
                     case "dynamic-tool":
                       return (
@@ -224,6 +295,9 @@ export default function AIChat() {
                           )}
                         </div>
                       );
+
+                    case "text":
+                      return <span key={index} className="pt-1">{part.text}</span>;
 
                     default:
                       return (
