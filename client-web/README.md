@@ -48,3 +48,6 @@ Open [http://localhost:3000](http://localhost:3000) in your browser.
 - `app/` - Next.js app router pages and API routes
 - `components/` - React components including chat interface
 - `lib/` - Utility functions and MCP client setup
+
+
+![Example LLM Call and Tool Call Response](./public/ai-chat-example.png)

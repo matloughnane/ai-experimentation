@@ -155,3 +155,6 @@ pnpm install
 3. Open [http://localhost:3000](http://localhost:3000) in your browser
 
 4. Start chatting! The interface will connect to your MCP server and allow you to use available tools through the AI models.
+
+
+![Example LLM Call and Tool Call Response](./client-web/public/ai-chat-example.png)

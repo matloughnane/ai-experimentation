@@ -297,6 +297,11 @@ export default function AIChat() {
                       );
 
                     case "text":
+                      // Don't render text if there's a ferry times tool call in this message
+                      const hasFerryTool = message.parts.some(p => 
+                        p.type === "tool-getArranmoreFerryTimes"
+                      );
+                      if (hasFerryTool) return null;
                       return <span key={index} className="pt-1">{part.text}</span>;
 
                     default:
