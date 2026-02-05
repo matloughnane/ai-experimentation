@@ -14,15 +14,31 @@ import {
   completenessScorer,
   translationScorer,
 } from "./scorers/weather-scorer";
+import { ferryWorkflow } from "./workflows/ferry-workflow";
+import { ferryAgent } from "./agents/ferry-agent";
+import {
+  toolCallAppropriatenessScorer as ferryToolCallScorer,
+  dateParsingAccuracyScorer,
+  responseCompletenessScorer,
+} from "./scorers/ferry-scorer";
 import { chatRoute } from "@mastra/ai-sdk";
 
 export const mastra = new Mastra({
-  workflows: { weatherWorkflow },
-  agents: { weatherAgent },
+  workflows: {
+    weatherWorkflow,
+    ferryWorkflow,
+  },
+  agents: {
+    weatherAgent,
+    ferryAgent,
+  },
   scorers: {
     toolCallAppropriatenessScorer,
     completenessScorer,
     translationScorer,
+    ferryToolCallScorer,
+    dateParsingAccuracyScorer,
+    responseCompletenessScorer,
   },
   storage: new LibSQLStore({
     id: "mastra-storage",
