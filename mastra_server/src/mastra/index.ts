@@ -16,6 +16,7 @@ import {
 } from "./scorers/weather-scorer";
 import { ferryWorkflow } from "./workflows/ferry-workflow";
 import { ferryAgent } from "./agents/ferry-agent";
+import { communityAgent } from "./agents/community-agent";
 import {
   toolCallAppropriatenessScorer as ferryToolCallScorer,
   dateParsingAccuracyScorer,
@@ -31,6 +32,7 @@ export const mastra = new Mastra({
   agents: {
     weatherAgent,
     ferryAgent,
+    communityAgent,
   },
   scorers: {
     toolCallAppropriatenessScorer,

@@ -55,7 +55,8 @@ import {
 } from "@/components/ai-elements/reasoning";
 import { Loader } from "@/components/ai-elements/loader";
 import { DefaultChatTransport } from "ai";
-import { ToolDisplay } from "./tool-display";
+import { ToolDisplay, FerryBookingButtons, CommunityPageCards } from "./tool-display";
+import { config } from "@/lib/config";
 
 const PromptInputAttachmentsDisplay = () => {
   const attachments = usePromptInputAttachments();
@@ -93,7 +94,7 @@ const ChatBotDemo = () => {
   const [webSearch, setWebSearch] = useState(false);
   const { messages, sendMessage, status, regenerate } = useChat({
     transport: new DefaultChatTransport({
-      api: "http://localhost:4111/chat/ferryAgent",
+      api: config.agentApiUrl,
     }),
   });
   const handleSubmit = (message: PromptInputMessage) => {
@@ -118,12 +119,18 @@ const ChatBotDemo = () => {
     setInput("");
   };
   return (
-    <div className="max-w-4xl mx-auto p-6 relative size-full h-[95vh]">
+    <div
+      className="max-w-4xl mx-auto p-6 relative size-full h-[95vh] rounded-lg"
+      style={{ backgroundColor: config.appBgColor }}
+    >
       <div className="flex flex-col h-full">
-        <h1 className="font-bold text-2xl text-[#1D897B]">Árainn AI</h1>
-        <h1 className="text-ld">
-          Your AI companion powered by Seo Árainn Mhór
+        <h1
+          className="font-bold text-2xl"
+          style={{ color: config.appPrimaryColor }}
+        >
+          {config.appTitle}
         </h1>
+        <h1 className="text-ld">{config.appDescription}</h1>
         <Conversation className="h-full">
           <ConversationContent>
             {messages.map((message) => (
@@ -153,29 +160,23 @@ const ChatBotDemo = () => {
                     </Sources>
                   )}
                 {message.parts.map((part, i) => {
+                  if (part.type.startsWith("tool-")) {
+                    if (!config.showToolsOutput) return null;
+                    const toolPart = part as unknown as {
+                      type: string;
+                      state: string;
+                      output?: unknown;
+                    };
+                    return (
+                      <ToolDisplay
+                        key={i}
+                        type={toolPart.type}
+                        state={toolPart.state}
+                        output={toolPart.output}
+                      />
+                    );
+                  }
                   switch (part.type) {
-                    case "tool-day-interpreter":
-                    case "tool-parse-date":
-                    case "tool-check-ferry":
-                      return (
-                        <ToolDisplay
-                          key={i}
-                          type={part.type}
-                          state={part.state}
-                          output={part.output}
-                        />
-                      );
-                    case "tool-weatherTool":
-                      switch (part.state) {
-                        case "output-available":
-                          return (
-                            <p key={i} className="text-[12px]">
-                              {JSON.stringify(part.output, null, 2)}
-                            </p>
-                          );
-                        default:
-                          return null;
-                      }
                     case "text":
                       return (
                         <Message key={`${message.id}-${i}`} from={message.role}>
@@ -222,14 +223,60 @@ const ChatBotDemo = () => {
                       return null;
                   }
                 })}
+                {message.role === "assistant" &&
+                  message.parts
+                    .filter((part) => {
+                      const toolPart = part as unknown as { type: string; state: string; output?: any };
+                      return (
+                        toolPart.type.startsWith("tool-") &&
+                        toolPart.type.toLowerCase().includes("ferry") &&
+                        toolPart.state === "output-available" &&
+                        toolPart.output != null
+                      );
+                    })
+                    .map((part, i) => {
+                      const toolPart = part as unknown as { output: any };
+                      return <FerryBookingButtons key={`ferry-buttons-${i}`} output={toolPart.output} />;
+                    })}
+                {message.role === "assistant" &&
+                  (status === "ready" || message.id !== messages[messages.length - 1]?.id) &&
+                  message.parts
+                    .filter((part) => {
+                      const toolPart = part as unknown as { type: string; state: string; output?: any };
+                      return (
+                        toolPart.type.startsWith("tool-") &&
+                        toolPart.type.includes("communityPagesByCategory") &&
+                        toolPart.state === "output-available" &&
+                        toolPart.output != null
+                      );
+                    })
+                    .map((part, i) => {
+                      const toolPart = part as unknown as { output: any };
+                      return <CommunityPageCards key={`community-pages-${i}`} output={toolPart.output} />;
+                    })}
               </div>
             ))}
-            {status === "submitted" && (
-              <div className="flex items-center gap-2 text-sm text-muted-foreground p-4 bg-muted/30 rounded-lg mx-auto max-w-md">
-                <Loader />
-                <span>Ferry Agent is processing your request...</span>
-              </div>
-            )}
+            {(() => {
+              const showLoader =
+                status === "submitted" ||
+                (!config.showToolsOutput &&
+                  status === "streaming" &&
+                  messages.length > 0 &&
+                  (() => {
+                    const lastMsg = messages[messages.length - 1];
+                    return (
+                      lastMsg.role === "assistant" &&
+                      !lastMsg.parts.some((p) => p.type === "text")
+                    );
+                  })());
+              if (!showLoader) return null;
+              return (
+                <div className="flex items-center gap-2 text-sm text-muted-foreground py-2">
+                  <Loader />
+                  <span>Thinking...</span>
+                </div>
+              );
+            })()}
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
@@ -241,6 +288,7 @@ const ChatBotDemo = () => {
             <PromptInputTextarea
               onChange={(e) => setInput(e.target.value)}
               value={input}
+              placeholder={config.appPlaceholder}
             />
           </PromptInputBody>
           <PromptInputFooter>

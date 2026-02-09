@@ -45,6 +45,7 @@ export const ferryTool = createTool({
       deckSpace: z.number().optional(),
       locked: z.boolean().optional(),
       rerouted: z.boolean().optional(),
+      originalTime: z.number().optional().describe('Raw integer time from API (e.g. 845, 1315)'),
     })).optional().describe('List of departure times and availability'),
     message: z.string().optional().describe('Additional information or error message'),
   }),
