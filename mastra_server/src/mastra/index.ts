@@ -66,6 +66,10 @@ export const mastra = new Mastra({
     },
   }),
   server: {
+    cors: {
+      origin: '*',
+      allowHeaders: ['Content-Type', 'Authorization', 'x-mastra-client-type', 'User-Agent'],
+    },
     apiRoutes: [chatRoute({ path: "/chat/:agentId" })],
   },
 });
