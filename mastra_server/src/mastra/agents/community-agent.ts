@@ -1,8 +1,13 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
+import { createGoogleGenerativeAI } from '@ai-sdk/google';
+import { withTracing } from '@posthog/ai';
 import { createCommunityTools, type CommunityConfig } from '../tools/community-tool';
 import { dateParserTool } from '../tools/date-parser-tool';
 import { dayInterpreterTool } from '../tools/day-interpreter-tool';
+import { phClient } from '../../posthog';
+
+const google = createGoogleGenerativeAI();
 
 export function createCommunityAgent(config: CommunityConfig) {
   const { communityCategoriesTools, communityPagesByCategoryTool, communityEventsTool } = createCommunityTools(config);
@@ -70,7 +75,10 @@ export function createCommunityAgent(config: CommunityConfig) {
     - "Any events next Friday?" → Interpret "next Friday", parse date, search events for that day
     - "What's happening?" → Fetch both categories and upcoming events for a full overview
   `,
-    model: 'google/gemini-2.5-flash',
+    model: withTracing(google('gemini-2.5-flash'), phClient, {
+      posthogDistinctId: config.id,
+      posthogProperties: { communityName: config.name },
+    }),
     tools: {
       communityCategoriesTools,
       communityPagesByCategoryTool,

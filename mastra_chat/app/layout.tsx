@@ -14,8 +14,34 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL(config.appUrl),
   title: config.appTitle,
   description: config.appDescription,
+  icons: {
+    icon: config.appFavicon,
+    apple: config.appFavicon,
+  },
+  openGraph: {
+    title: config.appTitle,
+    description: config.appDescription,
+    url: config.appUrl,
+    siteName: config.appTitle,
+    images: [
+      {
+        url: config.appOgImage,
+        width: 1200,
+        height: 630,
+        alt: config.appTitle,
+      },
+    ],
+    type: "website",
+  },
+  twitter: {
+    card: "summary_large_image",
+    title: config.appTitle,
+    description: config.appDescription,
+    images: [config.appOgImage],
+  },
 };
 
 export default function RootLayout({
