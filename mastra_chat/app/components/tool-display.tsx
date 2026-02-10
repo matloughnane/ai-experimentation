@@ -60,42 +60,53 @@ export function FerryBookingButtons({ output }: { output: any }) {
   );
 }
 
-function PageCard({ page }: { page: any }) {
+function PageCard({ page, onAction }: { page: any; onAction?: (pageId: string) => void }) {
   return (
-    <a
-      href={`https://webapp.seoarainnmhor.com/page/${page.uid}`}
-      target="_blank"
-      rel="noopener noreferrer"
-      className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/60 hover:bg-muted transition-colors"
-    >
-      {page.photoUrl && (
-        <img
-          src={page.photoUrl}
-          alt={page.name}
-          className="size-10 rounded-md object-cover shrink-0"
-        />
-      )}
-      <div className="min-w-0">
-        <div className="font-medium text-sm truncate">{page.name}</div>
-        {page.slogan && (
-          <div className="text-xs text-muted-foreground truncate">
-            {page.slogan}
-          </div>
+    <div className="flex items-center gap-3 px-3 py-2 rounded-lg bg-muted/60">
+      <a
+        href={`https://webapp.seoarainnmhor.com/page/${page.uid}`}
+        target="_blank"
+        rel="noopener noreferrer"
+        className="flex items-center gap-3 min-w-0 flex-1 hover:opacity-80 transition-opacity"
+      >
+        {page.photoUrl && (
+          <img
+            src={page.photoUrl}
+            alt={page.name}
+            className="size-10 rounded-md object-cover shrink-0"
+          />
         )}
-      </div>
-      <ExternalLink className="size-3 shrink-0 ml-auto text-muted-foreground" />
-    </a>
+        <div className="min-w-0">
+          <div className="font-medium text-sm truncate">{page.name}</div>
+          {page.slogan && (
+            <div className="text-xs text-muted-foreground truncate">
+              {page.slogan}
+            </div>
+          )}
+        </div>
+        <ExternalLink className="size-3 shrink-0 ml-auto text-muted-foreground" />
+      </a>
+      {onAction && (
+        <button
+          type="button"
+          onClick={() => onAction(page.id)}
+          className="shrink-0 text-xs font-medium px-2.5 py-1 rounded-md bg-primary text-primary-foreground hover:bg-primary/90 transition-colors"
+        >
+          View
+        </button>
+      )}
+    </div>
   );
 }
 
-export function CommunityPageCards({ output }: { output: any }) {
+export function CommunityPageCards({ output, onPageAction }: { output: any; onPageAction?: (pageId: string) => void }) {
   const pages: any[] = output?.pages ?? [];
   if (pages.length === 0) return null;
 
   return (
     <div className={`grid gap-2 mt-2 ml-8 ${pages.length === 1 ? "grid-cols-1 max-w-sm" : "grid-cols-1 sm:grid-cols-2"}`}>
       {pages.map((page) => (
-        <PageCard key={page.id} page={page} />
+        <PageCard key={page.id} page={page} onAction={onPageAction} />
       ))}
     </div>
   );

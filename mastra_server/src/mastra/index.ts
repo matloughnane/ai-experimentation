@@ -16,13 +16,26 @@ import {
 } from "./scorers/weather-scorer";
 import { ferryWorkflow } from "./workflows/ferry-workflow";
 import { ferryAgent } from "./agents/ferry-agent";
-import { communityAgent } from "./agents/community-agent";
+import { createCommunityAgent } from "./agents/community-agent";
 import {
   toolCallAppropriatenessScorer as ferryToolCallScorer,
   dateParsingAccuracyScorer,
   responseCompletenessScorer,
 } from "./scorers/ferry-scorer";
 import { chatRoute } from "@mastra/ai-sdk";
+
+// -- Community agents --
+const seoarainnmhor = createCommunityAgent({
+  id: 'seoarainnmhor',
+  name: 'Seo Árainn Mhór',
+  apiBase: process.env.SEOARAINNMHOR_API || 'http://localhost:5100',
+});
+
+const inisoirrbeo = createCommunityAgent({
+  id: 'inisoirrbeo',
+  name: 'Inis Oírr Beo',
+  apiBase: process.env.INISOIRRBEO_API || 'http://localhost:5200',
+});
 
 export const mastra = new Mastra({
   workflows: {
@@ -32,7 +45,8 @@ export const mastra = new Mastra({
   agents: {
     weatherAgent,
     ferryAgent,
-    communityAgent,
+    seoarainnmhor,
+    inisoirrbeo,
   },
   scorers: {
     toolCallAppropriatenessScorer,

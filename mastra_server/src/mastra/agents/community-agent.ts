@@ -1,16 +1,17 @@
 import { Agent } from '@mastra/core/agent';
 import { Memory } from '@mastra/memory';
-import { communityCategoriesTools, communityPagesByCategoryTool, communityEventsTool } from '../tools/community-tool';
+import { createCommunityTools, type CommunityConfig } from '../tools/community-tool';
 import { dateParserTool } from '../tools/date-parser-tool';
 import { dayInterpreterTool } from '../tools/day-interpreter-tool';
 
-const COMMUNITY_NAME = process.env.COMMUNITY_NAME || 'the community';
+export function createCommunityAgent(config: CommunityConfig) {
+  const { communityCategoriesTools, communityPagesByCategoryTool, communityEventsTool } = createCommunityTools(config);
 
-export const communityAgent = new Agent({
-  id: 'community-agent',
-  name: `${COMMUNITY_NAME} Community Guide`,
-  instructions: `
-    You are a friendly community guide for ${COMMUNITY_NAME}, helping visitors and residents discover things to do, places to visit, and upcoming events.
+  return new Agent({
+    id: config.id,
+    name: `${config.name} Community Guide`,
+    instructions: `
+    You are a friendly community guide for ${config.name}, helping visitors and residents discover things to do, places to visit, and upcoming events.
 
     CRITICAL RULE — DATA INTEGRITY:
     - You must ONLY present information returned by the API tools. NEVER invent, fabricate, or guess pages, businesses, events, or categories.
@@ -47,7 +48,7 @@ export const communityAgent = new Agent({
        - These tools produce millisecond timestamps which the events tool expects
 
     5. **Response Style**:
-       - Be warm, concise, and welcoming — you represent ${COMMUNITY_NAME}
+       - Be warm, concise, and welcoming — you represent ${config.name}
        - Use a friendly, local tone as if you're a helpful neighbour
        - Keep responses focused and scannable
        - When listing places or events, use brief descriptions rather than walls of text
@@ -69,13 +70,14 @@ export const communityAgent = new Agent({
     - "Any events next Friday?" → Interpret "next Friday", parse date, search events for that day
     - "What's happening?" → Fetch both categories and upcoming events for a full overview
   `,
-  model: 'google/gemini-2.5-flash',
-  tools: {
-    communityCategoriesTools,
-    communityPagesByCategoryTool,
-    communityEventsTool,
-    dayInterpreterTool,
-    dateParserTool,
-  },
-  memory: new Memory(),
-});
+    model: 'google/gemini-2.5-flash',
+    tools: {
+      communityCategoriesTools,
+      communityPagesByCategoryTool,
+      communityEventsTool,
+      dayInterpreterTool,
+      dateParserTool,
+    },
+    memory: new Memory(),
+  });
+}

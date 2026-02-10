@@ -88,6 +88,10 @@ const models = [
     value: "deepseek/deepseek-r1",
   },
 ];
+const handlePageAction = (pageId: string) => {
+  console.log("Page action triggered for ID:", pageId);
+};
+
 const ChatBotDemo = () => {
   const [input, setInput] = useState("");
   const [model, setModel] = useState<string>(models[0].value);
@@ -252,7 +256,7 @@ const ChatBotDemo = () => {
                     })
                     .map((part, i) => {
                       const toolPart = part as unknown as { output: any };
-                      return <CommunityPageCards key={`community-pages-${i}`} output={toolPart.output} />;
+                      return <CommunityPageCards key={`community-pages-${i}`} output={toolPart.output} onPageAction={handlePageAction} />;
                     })}
               </div>
             ))}
