@@ -39,7 +39,7 @@ import {
   PromptInputTools,
   usePromptInputAttachments,
 } from "@/components/ai-elements/prompt-input";
-import { Fragment, useState } from "react";
+import { Fragment, useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
 import { CopyIcon, ExternalLinkIcon, GlobeIcon, RefreshCcwIcon } from "lucide-react";
 import {
@@ -54,6 +54,7 @@ import {
   ReasoningTrigger,
 } from "@/components/ai-elements/reasoning";
 import { Loader } from "@/components/ai-elements/loader";
+import { useStickToBottomContext } from "use-stick-to-bottom";
 import { DefaultChatTransport } from "ai";
 import { ToolDisplay, FerryBookingButtons, CommunityPageCards } from "./tool-display";
 import { config } from "@/lib/config";
@@ -90,6 +91,20 @@ const models = [
 ];
 const handlePageAction = (pageId: string) => {
   console.log("Page action triggered for ID:", pageId);
+};
+
+const AutoScrollOnSubmit = ({ messageCount }: { messageCount: number }) => {
+  const { scrollToBottom } = useStickToBottomContext();
+  const prevCount = useRef(messageCount);
+
+  useEffect(() => {
+    if (messageCount > prevCount.current) {
+      scrollToBottom();
+    }
+    prevCount.current = messageCount;
+  }, [messageCount, scrollToBottom]);
+
+  return null;
 };
 
 const ChatBotDemo = () => {
@@ -156,6 +171,7 @@ const ChatBotDemo = () => {
           )}
         </div>
         <Conversation className="flex-1 min-h-0">
+          <AutoScrollOnSubmit messageCount={messages.length} />
           <ConversationContent>
             {messages.map((message) => (
               <div key={message.id}>
