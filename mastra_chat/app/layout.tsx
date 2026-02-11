@@ -13,14 +13,23 @@ const geistMono = Geist_Mono({
   subsets: ["latin"],
 });
 
+const fp = config.appFaviconPath;
+
 export const metadata: Metadata = {
   metadataBase: new URL(config.appUrl),
   title: config.appTitle,
   description: config.appDescription,
   icons: {
-    icon: config.appFavicon,
-    apple: config.appFavicon,
+    icon: [
+      { url: `${fp}/favicon.ico`, sizes: 'any' },
+      { url: `${fp}/favicon-16x16.png`, sizes: '16x16', type: 'image/png' },
+      { url: `${fp}/favicon-32x32.png`, sizes: '32x32', type: 'image/png' },
+      { url: `${fp}/android-chrome-192x192.png`, sizes: '192x192', type: 'image/png' },
+      { url: `${fp}/android-chrome-512x512.png`, sizes: '512x512', type: 'image/png' },
+    ],
+    apple: `${fp}/apple-touch-icon.png`,
   },
+  manifest: `${fp}/site.webmanifest`,
   openGraph: {
     title: config.appTitle,
     description: config.appDescription,

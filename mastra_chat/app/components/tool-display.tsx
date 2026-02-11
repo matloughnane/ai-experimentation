@@ -86,7 +86,7 @@ function PageCard({ page, onAction }: { page: any; onAction?: (pageId: string) =
         </div>
         <ExternalLink className="size-3 shrink-0 ml-auto text-muted-foreground" />
       </a>
-      {onAction && (
+      {/* {onAction && (
         <button
           type="button"
           onClick={() => onAction(page.id)}
@@ -94,7 +94,7 @@ function PageCard({ page, onAction }: { page: any; onAction?: (pageId: string) =
         >
           View
         </button>
-      )}
+      )} */}
     </div>
   );
 }

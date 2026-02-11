@@ -41,7 +41,7 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Fragment, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { CopyIcon, GlobeIcon, RefreshCcwIcon } from "lucide-react";
+import { CopyIcon, ExternalLinkIcon, GlobeIcon, RefreshCcwIcon } from "lucide-react";
 import {
   Source,
   Sources,
@@ -124,18 +124,38 @@ const ChatBotDemo = () => {
   };
   return (
     <div
-      className="max-w-4xl mx-auto p-6 relative size-full h-[95vh] rounded-lg"
+      className="max-w-4xl mx-auto p-4 sm:p-6 relative size-full h-dvh sm:h-[95vh] rounded-lg"
       style={{ backgroundColor: config.appBgColor }}
     >
       <div className="flex flex-col h-full">
-        <h1
-          className="font-bold text-2xl"
-          style={{ color: config.appPrimaryColor }}
-        >
-          {config.appTitle}
-        </h1>
-        <h1 className="text-ld">{config.appDescription}</h1>
-        <Conversation className="h-full">
+        <div className="flex items-center gap-3 pb-3 border-b border-border/40 mb-3">
+          <img
+            src={`${config.appFaviconPath}/apple-touch-icon.png`}
+            alt={config.appTitle}
+            className="size-10 rounded-lg shrink-0"
+          />
+          <div className="min-w-0 flex-1">
+            <h1
+              className="font-bold text-xl leading-tight"
+              style={{ color: config.appPrimaryColor }}
+            >
+              {config.appTitle}
+            </h1>
+            <p className="text-sm text-muted-foreground">{config.appDescription}</p>
+          </div>
+          {config.appWebsite && (
+            <a
+              href={config.appWebsite}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="shrink-0 inline-flex items-center gap-1.5 text-xs font-medium px-3 py-1.5 rounded-md border border-border hover:bg-accent transition-colors text-muted-foreground hover:text-foreground"
+            >
+              Website
+              <ExternalLinkIcon className="size-3" />
+            </a>
+          )}
+        </div>
+        <Conversation className="flex-1 min-h-0">
           <ConversationContent>
             {messages.map((message) => (
               <div key={message.id}>
@@ -284,7 +304,7 @@ const ChatBotDemo = () => {
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
-        <PromptInput onSubmit={handleSubmit} className="" globalDrop multiple>
+        <PromptInput onSubmit={handleSubmit} className="shrink-0 mt-2" globalDrop multiple>
           <PromptInputHeader>
             <PromptInputAttachmentsDisplay />
           </PromptInputHeader>

@@ -7,7 +7,9 @@ export const config = {
   appPrimaryColor: process.env.NEXT_PUBLIC_APP_PRIMARY_COLOR || '#1D897B',
   appUrl: process.env.NEXT_PUBLIC_APP_URL || 'https://localhost:3000',
   appFavicon: process.env.NEXT_PUBLIC_APP_FAVICON || '/favicon.ico',
+  appFaviconPath: process.env.NEXT_PUBLIC_APP_FAVICON_PATH || '/seo-favicon',
   appOgImage: process.env.NEXT_PUBLIC_APP_OG_IMAGE || '/og-image.png',
+  appWebsite: process.env.NEXT_PUBLIC_WEBSITE || '',
 
   // API configuration
   agentApiUrl: process.env.NEXT_PUBLIC_AGENT_API_URL || 'http://localhost:4111/chat/communityAgent',
