@@ -285,5 +285,89 @@ export function createCommunityTools(config: CommunityConfig) {
     },
   });
 
-  return { communityCategoriesTools, communityPagesByCategoryTool, communityEventsTool };
+  const communitySearchTool = createTool({
+    id: `search-community-pages-${id}`,
+    description: `Fuzzy-search across all pages/businesses in ${name} by name or slogan. Use this when the user names a place but you don't know its category, or asks "is there a <thing>?" — it searches the whole community at once. Returns deep-linkable pages.`,
+    inputSchema: z.object({
+      query: z.string().min(4).describe('The search term (minimum 4 characters), e.g. a place name or keyword'),
+    }),
+    outputSchema: z.object({
+      pages: z.array(z.object({
+        id: z.string(),
+        uid: z.string(),
+        name: z.string(),
+        slogan: z.string().optional(),
+        photoUrl: z.string().optional(),
+      })),
+      count: z.number(),
+      message: z.string(),
+    }),
+    execute: async ({ query }) => {
+      console.log(`\n🔍 [${name}] COMMUNITY SEARCH REQUEST:`, { query });
+      console.log(`${apiBase}/search?q=${encodeURIComponent(query)}`);
+
+      try {
+        const response = await fetch(`${apiBase}/search?q=${encodeURIComponent(query)}`);
+
+        console.log(`🔍 [${name}] COMMUNITY SEARCH RESPONSE STATUS:`, response.status, response.statusText);
+
+        if (!response.ok) {
+          throw new Error(`API request failed with status ${response.status}`);
+        }
+
+        const data = await response.json() as {
+          results: Array<{
+            object: string;
+            id: string;
+            uid?: string;
+            name?: string;
+            slogan?: string;
+            page_photos?: Array<{
+              file_name: string;
+              primary_photo: number;
+            }> | null;
+          }>;
+        };
+
+        // Pages only — deep-linkable via uid.
+        const pages = (data.results || [])
+          .filter(r => r.object === 'page' && r.uid)
+          .map(r => {
+            const primaryPhoto = r.page_photos?.find(ph => ph.primary_photo === 1) ?? r.page_photos?.[0];
+            const photoUrl = primaryPhoto
+              ? `${apiBase}/images/page/md/${primaryPhoto.file_name}.webp`
+              : undefined;
+            return {
+              id: r.id,
+              uid: r.uid as string,
+              name: r.name ?? '',
+              slogan: r.slogan || undefined,
+              photoUrl,
+            };
+          });
+
+        const result = {
+          pages,
+          count: pages.length,
+          message: pages.length > 0
+            ? `Found ${pages.length} place(s) matching "${query}"`
+            : `No places found matching "${query}"`,
+        };
+
+        console.log('✅ COMMUNITY SEARCH RESULT:', JSON.stringify(result, null, 2));
+        return result;
+      } catch (error) {
+        const errorMessage = error instanceof Error ? error.message : 'Unknown error occurred';
+        console.error('❌ COMMUNITY SEARCH ERROR:', errorMessage);
+
+        return {
+          pages: [],
+          count: 0,
+          message: `Failed to search for "${query}": ${errorMessage}`,
+        };
+      }
+    },
+  });
+
+  return { communityCategoriesTools, communityPagesByCategoryTool, communityEventsTool, communitySearchTool };
 }

@@ -10,7 +10,7 @@ import { phClient } from '../../posthog';
 const google = createGoogleGenerativeAI();
 
 export function createCommunityAgent(config: CommunityConfig) {
-  const { communityCategoriesTools, communityPagesByCategoryTool, communityEventsTool } = createCommunityTools(config);
+  const { communityCategoriesTools, communityPagesByCategoryTool, communityEventsTool, communitySearchTool } = createCommunityTools(config);
 
   return new Agent({
     id: config.id,
@@ -33,11 +33,11 @@ export function createCommunityAgent(config: CommunityConfig) {
        - If NO pages are returned, tell the user honestly that there are no listings in that category right now
 
     2. **Looking Up a Specific Page/Business**:
-       - When the user asks about a specific place by name (e.g. "Tell me about Shipwreck Takeaway"), use communityPagesByCategoryTool with the pageName filter
-       - If you already know the category from the conversation (e.g. user previously asked about Food & Drink), reuse that categoryId and pass the pageName to filter to just that one page
-       - If you don't know the category yet, first fetch categories with communityCategoriesTools, pick the most likely category, then call communityPagesByCategoryTool with pageName
-       - The pageName filter is a case-insensitive partial match — just pass the place name as-is (e.g. "Shipwreck")
-       - A card with photo and link will appear automatically in the UI for the matching page
+       - When the user asks about a specific place by name (e.g. "Tell me about Shipwreck Takeaway") and you DON'T already know its category, use communitySearchTool with the place name — it fuzzy-searches every page in the community at once, so you don't need to guess a category first
+       - Also use communitySearchTool for open-ended "is there a <thing>?" / "any <thing> here?" questions where the category is unclear
+       - If you ALREADY know the category from the conversation (e.g. the user previously asked about Food & Drink), you can instead reuse that categoryId with communityPagesByCategoryTool and pass the pageName filter
+       - Search/filter terms are case-insensitive — just pass the place name or keyword as-is (e.g. "Shipwreck"); communitySearchTool needs at least 4 characters
+       - A card with photo and link will appear automatically in the UI for each returned page
 
     3. **Searching for Events**:
        - First use dayInterpreterTool to interpret day names (e.g. "Friday", "next Saturday")
@@ -63,6 +63,7 @@ export function createCommunityAgent(config: CommunityConfig) {
     - communityCategoriesTools: Fetch all community categories (things to do, food, accommodation, etc.)
     - communityPagesByCategoryTool: Fetch pages/businesses within a specific category
     - communityPagesByCategoryTool also accepts an optional pageName filter to return only matching pages within a category
+    - communitySearchTool: Fuzzy-search ALL pages/businesses across the whole community by name or slogan (use when you don't know the category; min 4 characters)
     - communityEventsTool: Search for events within a date range
     - dayInterpreterTool: Interpret colloquial day terms (Friday, Monday, etc.) and get the correct date
     - dateParserTool: Parse natural language dates into timestamps
@@ -70,7 +71,8 @@ export function createCommunityAgent(config: CommunityConfig) {
     Example interactions:
     - "What can I do on the island?" → Fetch categories, summarise options, ask what interests them
     - "Where can I eat?" → Fetch categories, find Food & Drink, fetch pages for that category
-    - "Tell me about Shipwreck Takeaway" → Use communityPagesByCategoryTool with the Food & Drink categoryId and pageName "Shipwreck"
+    - "Tell me about Shipwreck Takeaway" → Use communitySearchTool with "Shipwreck" (no need to know the category)
+    - "Is there a bike hire place?" → Use communitySearchTool with "bike hire"
     - "What events are on this weekend?" → Interpret "this weekend", parse dates, search events
     - "Any events next Friday?" → Interpret "next Friday", parse date, search events for that day
     - "What's happening?" → Fetch both categories and upcoming events for a full overview
@@ -83,6 +85,7 @@ export function createCommunityAgent(config: CommunityConfig) {
       communityCategoriesTools,
       communityPagesByCategoryTool,
       communityEventsTool,
+      communitySearchTool,
       dayInterpreterTool,
       dateParserTool,
     },
