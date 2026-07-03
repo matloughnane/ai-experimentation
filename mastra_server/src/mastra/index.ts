@@ -17,6 +17,7 @@ import {
 import { ferryWorkflow } from "./workflows/ferry-workflow";
 import { ferryAgent } from "./agents/ferry-agent";
 import { createCommunityAgent } from "./agents/community-agent";
+import { createPostAgent } from "./agents/post-agent";
 import {
   toolCallAppropriatenessScorer as ferryToolCallScorer,
   dateParsingAccuracyScorer,
@@ -37,6 +38,10 @@ const inisoirrbeo = createCommunityAgent({
   apiBase: process.env.INISOIRRBEO_API || 'http://localhost:5200',
 });
 
+// -- Post-creation agents --
+const seoarainnmhorPosts = createPostAgent({ id: 'seoarainnmhor-posts', name: 'Seo Árainn Mhór' });
+const inisoirrbeoPosts = createPostAgent({ id: 'inisoirrbeo-posts', name: 'Inis Oírr Beo' });
+
 export const mastra = new Mastra({
   workflows: {
     weatherWorkflow,
@@ -47,6 +52,8 @@ export const mastra = new Mastra({
     ferryAgent,
     seoarainnmhor,
     inisoirrbeo,
+    seoarainnmhorPosts,
+    inisoirrbeoPosts,
   },
   scorers: {
     toolCallAppropriatenessScorer,
