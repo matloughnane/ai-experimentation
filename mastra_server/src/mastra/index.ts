@@ -52,8 +52,8 @@ export const mastra = new Mastra({
     ferryAgent,
     seoarainnmhor,
     inisoirrbeo,
-    seoarainnmhorPosts,
-    inisoirrbeoPosts,
+    'seoarainnmhor-posts': seoarainnmhorPosts,
+    'inisoirrbeo-posts': inisoirrbeoPosts,
   },
   scorers: {
     toolCallAppropriatenessScorer,
