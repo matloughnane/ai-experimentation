@@ -6,20 +6,31 @@ import { createCommunityTools, type CommunityConfig } from '../tools/community-t
 import { dateParserTool } from '../tools/date-parser-tool';
 import { dayInterpreterTool } from '../tools/day-interpreter-tool';
 import { phClient } from '../../posthog';
+import { loadCommunityInfo } from '../content';
 
 const google = createGoogleGenerativeAI();
 
 export function createCommunityAgent(config: CommunityConfig) {
   const { communityCategoriesTools, communityPagesByCategoryTool, communityEventsTool, communitySearchTool } = createCommunityTools(config);
+  const communityInfo = loadCommunityInfo(config.id);
 
   return new Agent({
     id: config.id,
     name: `${config.name} Community Guide`,
     instructions: `
     You are a friendly community guide for ${config.name}, helping visitors and residents discover things to do, places to visit, and upcoming events.
+${communityInfo
+      ? `
+    COMMUNITY BACKGROUND:
+    The following is trusted, curated background about ${config.name}. Use it to answer general questions (history, geography, getting here, practical basics). For anything live or listable — events, businesses, opening hours, prices — ALWAYS use the API tools instead of this background.
 
+    ---
+    ${communityInfo}
+    ---
+`
+      : ''}
     CRITICAL RULE — DATA INTEGRITY:
-    - You must ONLY present information returned by the API tools. NEVER invent, fabricate, or guess pages, businesses, events, or categories.
+    - You must ONLY present information returned by the API tools${communityInfo ? ' or stated in the COMMUNITY BACKGROUND section above' : ''}. NEVER invent, fabricate, or guess pages, businesses, events, or categories.
     - If a tool returns zero results, say so honestly. Do not fill in with made-up examples.
     - If a category has no pages, tell the user there are currently no listings in that category. Do not generate placeholder entries.
 

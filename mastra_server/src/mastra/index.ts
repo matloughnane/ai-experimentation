@@ -17,6 +17,7 @@ import {
 import { ferryWorkflow } from "./workflows/ferry-workflow";
 import { ferryAgent } from "./agents/ferry-agent";
 import { createCommunityAgent } from "./agents/community-agent";
+import { createPostAgent } from "./agents/post-agent";
 import {
   toolCallAppropriatenessScorer as ferryToolCallScorer,
   dateParsingAccuracyScorer,
@@ -37,6 +38,17 @@ const inisoirrbeo = createCommunityAgent({
   apiBase: process.env.INISOIRRBEO_API || 'http://localhost:5200',
 });
 
+const bluewayarranmore = createCommunityAgent({
+  id: 'bluewayarranmore',
+  name: 'Blueway Arranmore',
+  apiBase: process.env.BLUEWAYARRANMORE_API || 'http://localhost:4100',
+});
+
+// -- Post-creation agents --
+const seoarainnmhorPosts = createPostAgent({ id: 'seoarainnmhor-posts', name: 'Seo Árainn Mhór' });
+const inisoirrbeoPosts = createPostAgent({ id: 'inisoirrbeo-posts', name: 'Inis Oírr Beo' });
+const bluewayarranmorePosts = createPostAgent({ id: 'bluewayarranmore-posts', name: 'Blueway Arranmore' });
+
 export const mastra = new Mastra({
   workflows: {
     weatherWorkflow,
@@ -47,6 +59,10 @@ export const mastra = new Mastra({
     ferryAgent,
     seoarainnmhor,
     inisoirrbeo,
+    bluewayarranmore,
+    'seoarainnmhor-posts': seoarainnmhorPosts,
+    'inisoirrbeo-posts': inisoirrbeoPosts,
+    'bluewayarranmore-posts': bluewayarranmorePosts,
   },
   scorers: {
     toolCallAppropriatenessScorer,
@@ -58,8 +74,11 @@ export const mastra = new Mastra({
   },
   storage: new LibSQLStore({
     id: "mastra-storage",
-    // stores observability, scores, ... into memory storage, if it needs to persist, change to file:../mastra.db
-    url: ":memory:",
+    // Must be file-backed (not :memory:): since @mastra/core 1.49 the orchestration
+    // worker uses its own connection, and every :memory: connection gets a separate
+    // empty database — the scheduled notification dispatcher then fails with
+    // "no such table: mastra_workflow_snapshot" every minute.
+    url: "file:../mastra.db",
   }),
   logger: new PinoLogger({
     name: "Mastra",
@@ -84,6 +103,9 @@ export const mastra = new Mastra({
       origin: '*',
       allowHeaders: ['Content-Type', 'Authorization', 'x-mastra-client-type', 'User-Agent'],
     },
-    apiRoutes: [chatRoute({ path: "/chat/:agentId" })],
+    // maxSteps: the default (5) is exhausted by tool rounds alone on multi-day
+    // queries ("what's on this week?" = dayInterpreter + dateParser per day),
+    // ending the stream with no text. Allow enough steps for tools + answer.
+    apiRoutes: [chatRoute({ path: "/chat/:agentId", defaultOptions: { maxSteps: 15 } })],
   },
 });
