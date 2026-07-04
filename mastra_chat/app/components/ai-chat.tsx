@@ -41,7 +41,12 @@ import {
 } from "@/components/ai-elements/prompt-input";
 import { Fragment, useEffect, useRef, useState } from "react";
 import { useChat } from "@ai-sdk/react";
-import { CopyIcon, ExternalLinkIcon, GlobeIcon, RefreshCcwIcon } from "lucide-react";
+import {
+  CopyIcon,
+  ExternalLinkIcon,
+  GlobeIcon,
+  RefreshCcwIcon,
+} from "lucide-react";
 import {
   Source,
   Sources,
@@ -56,7 +61,11 @@ import {
 import { Loader } from "@/components/ai-elements/loader";
 import { useStickToBottomContext } from "use-stick-to-bottom";
 import { DefaultChatTransport } from "ai";
-import { ToolDisplay, FerryBookingButtons, CommunityPageCards } from "./tool-display";
+import {
+  ToolDisplay,
+  FerryBookingButtons,
+  CommunityPageCards,
+} from "./tool-display";
 import { config } from "@/lib/config";
 
 const PromptInputAttachmentsDisplay = () => {
@@ -156,7 +165,9 @@ const ChatBotDemo = () => {
             >
               {config.appTitle}
             </h1>
-            <p className="text-sm text-muted-foreground">{config.appDescription}</p>
+            <p className="text-sm text-muted-foreground">
+              {config.appDescription}
+            </p>
           </div>
           {config.appWebsite && (
             <a
@@ -266,7 +277,11 @@ const ChatBotDemo = () => {
                 {message.role === "assistant" &&
                   message.parts
                     .filter((part) => {
-                      const toolPart = part as unknown as { type: string; state: string; output?: any };
+                      const toolPart = part as unknown as {
+                        type: string;
+                        state: string;
+                        output?: any;
+                      };
                       return (
                         toolPart.type.startsWith("tool-") &&
                         toolPart.type.toLowerCase().includes("ferry") &&
@@ -276,13 +291,23 @@ const ChatBotDemo = () => {
                     })
                     .map((part, i) => {
                       const toolPart = part as unknown as { output: any };
-                      return <FerryBookingButtons key={`ferry-buttons-${i}`} output={toolPart.output} />;
+                      return (
+                        <FerryBookingButtons
+                          key={`ferry-buttons-${i}`}
+                          output={toolPart.output}
+                        />
+                      );
                     })}
                 {message.role === "assistant" &&
-                  (status === "ready" || message.id !== messages[messages.length - 1]?.id) &&
+                  (status === "ready" ||
+                    message.id !== messages[messages.length - 1]?.id) &&
                   message.parts
                     .filter((part) => {
-                      const toolPart = part as unknown as { type: string; state: string; output?: any };
+                      const toolPart = part as unknown as {
+                        type: string;
+                        state: string;
+                        output?: any;
+                      };
                       return (
                         toolPart.type.startsWith("tool-") &&
                         toolPart.type.includes("communityPagesByCategory") &&
@@ -292,7 +317,13 @@ const ChatBotDemo = () => {
                     })
                     .map((part, i) => {
                       const toolPart = part as unknown as { output: any };
-                      return <CommunityPageCards key={`community-pages-${i}`} output={toolPart.output} onPageAction={handlePageAction} />;
+                      return (
+                        <CommunityPageCards
+                          key={`community-pages-${i}`}
+                          output={toolPart.output}
+                          onPageAction={handlePageAction}
+                        />
+                      );
                     })}
               </div>
             ))}
@@ -320,7 +351,12 @@ const ChatBotDemo = () => {
           </ConversationContent>
           <ConversationScrollButton />
         </Conversation>
-        <PromptInput onSubmit={handleSubmit} className="shrink-0 mt-2" globalDrop multiple>
+        <PromptInput
+          onSubmit={handleSubmit}
+          className="shrink-0 mt-2"
+          globalDrop
+          multiple
+        >
           <PromptInputHeader>
             <PromptInputAttachmentsDisplay />
           </PromptInputHeader>
